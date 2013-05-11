@@ -13,7 +13,6 @@ ifstream fin ("prefix.in" );
 ofstream fout("prefix.out");
 int main()
 {	
-int i;
 	int h[5];
 	memset(h, 0, sizeof(int) * 5);
 
