@@ -5,7 +5,6 @@ LANG: C++
 */
 
 #include <fstream>
-#include <algorithm>
 #include <cstring>
 using namespace std;
 
