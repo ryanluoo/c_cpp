@@ -13,11 +13,13 @@ ifstream fin ("prefix.in" );
 ofstream fout("prefix.out");
 int main()
 {	
-	int h[5];
-	memset(h, 0, sizeof(int) * 5);
-
-	for (int i = 0; i != 5; ++i)
-		fout << h[i] << " ";
+	
+	string s1 = "AB";
+	string s2 = "B";
+	if (s1 > s2 + "A")
+		fout << "TRUE";
+	else
+		fout << "FALSE";
 
 	fin.close();
 	fout.close();
