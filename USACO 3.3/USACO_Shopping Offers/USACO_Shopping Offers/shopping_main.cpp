@@ -26,7 +26,6 @@ int item[MAXK];
 int numb[MAXK];
 int pric[MAXK];
 
-//int code[MAXC];
 int reco[6][6][6][6][6];
 int s, b;
 
@@ -59,16 +58,9 @@ int main()
 	}
 
 	fin >> b;
-
-	int minp = 0;
 	for (int i = 0; i != b; ++i)
-	{
 		fin >> item[i] >> numb[i] >> pric[i];
-		minp += pric[i] * numb[i];
-		//code[item[i]-1] = numb[i];
-	}
 
-	//reco[0][0][0][0][0] = 0;
 	for (int i1 = 0; i1 <= numb[0]; ++i1)
 		for (int i2 = 0; i2 <= numb[1]; ++i2)
 			for (int i3 = 0; i3 <= numb[2]; ++i3)
