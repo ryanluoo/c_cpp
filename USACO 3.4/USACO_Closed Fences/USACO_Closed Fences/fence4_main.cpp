@@ -6,6 +6,7 @@ LANG: C++
 
 #include <fstream>
 #include <cstring>
+#include <climits>
 #include <list>
 using namespace std;
 
@@ -69,7 +70,7 @@ struct Line
 	}
 };
 
-Point cp;
+double crossi, crossj;
 int IsCross(Point a, Point b, Point c, Point d)
 {
 	// Line1 : (ax, ay), (bx, by)
@@ -84,26 +85,42 @@ int IsCross(Point a, Point b, Point c, Point d)
 
 	double i = in / id, j = jn / jd;
 	//Cross Point
-	cp.x = a.x + i * (b.x - a.x);
-	cp.y = a.y + i * (b.y - a.y);
+    crossi = i; crossj = j;
 
 	if (i < 1 && i > 0 && j < 1 && j > 0) // 严格相交于线段中间某点
 		return 1;
-	else if ((i == 1 || i == 0) && (j < 1 && j > 0)) // 相交于线段AB顶点，但不是CD的顶点
-		return -1;
-	else if ((j == 1 || j == 0) && (i < 1 && i > 0)) // 相交于线段CD顶点，但不是AB的顶点
-		return -2;
-	else if ((i == 1 || i == 0) && (j == 1 || j == 0)) // 相交于线段AB，CD的顶点
-		return -3;
+	//else if ((i == 1 || i == 0) && (j < 1 && j > 0)) // 相交于线段AB顶点，但不是CD的顶点
+	//	return -1;
+	//else if ((j == 1 || j == 0) && (i < 1 && i > 0)) // 相交于线段CD顶点，但不是AB的顶点
+	//	return -2;
+	//else if ((i == 1 || i == 0) && (j == 1 || j == 0)) // 相交于线段AB，CD的顶点
+	//	return -3;
 	else
-		return 0; // 严格不相交
+		return -1; // 不相交
 }
 
+//是否三点一线
 bool IsOneL(Point a, Point b, Point o)
 {
 	return (a.x - o.x) * (b.y - o.y) == (a.y - o.y) * (b.x - o.x);
 }
 
+//是否平行
+bool IsParallel(Line l1, Line l2)
+{
+    return (l1.a.x - l1.b.x) * (l2.a.y - l2.b.y) == (l1.a.y - l1.b.y) * (l2.a.x - l2.b.x);
+}
+
+bool Check (Line fence)
+{
+	for (int i = 0; i != N; ++i)
+	{
+		double ratioi, ratioi_1;
+		int cresult = IsCross(Point(xo, yo), Point(x[i], y[i]), fence.a, fence.b));
+		if (cresult != 0 || crossi < 1)
+			
+	}
+}
 int main()
 {
 	ifstream fin ("fence4.in" );
@@ -111,9 +128,7 @@ int main()
 
 	fin >> N >> xo >> yo;
 	for (int i = 0; i != N; ++i)
-	{
 		fin >> x[i] >> y[i];
-	}
 
 	bool NOFENCE = false;
 	for (int i = 0; i < N; ++i)
@@ -123,7 +138,7 @@ int main()
 			if ((j+1)%N == i)
 				continue;
 			if (IsCross(Point(x[i], y[i]), Point(x[(i+1)%N], y[(i+1)%N]),
-						Point(x[j], y[j]), Point(x[(j+1)%N], y[(j+1)%N])) != 0)
+						Point(x[j], y[j]), Point(x[(j+1)%N], y[(j+1)%N])) == 1)
 				NOFENCE = true;
 		}
 	}
@@ -132,56 +147,18 @@ int main()
 	//Observe
 	for (int i = 1; i < N; ++i)
 	{
-		bool seen = true;
-		if (IsOneL(Point(x[i-1], y[i-1]), Point(x[i], y[i]), Point(xo, yo)))
-			seen = false;
-
-		double x1 = x[i-1], y1 = y[i-1];
-		double x2 = x[i],   y2 = y[i];
-
-		for (int j = 0; j < N; ++j)
+		if (i != N - 1)
 		{
-			bool seeni = true, seeni_1 = true;
-			if (i - 1 == j)
-				continue;
-			if (0 != IsCross(Point(xo, yo), Point(x[i],   y[i]),   Point(x[j], y[j]), Point(x[(j+1)%N], y[(j+1)%N])))
-				seeni = false;
-			if (0 != IsCross(Point(xo, yo), Point(x[i-1], y[i-1]), Point(x[j], y[j]), Point(x[(j+1)%N], y[(j+1)%N])))
-				seeni_1 = false;
-			if (!seeni && !seeni_1)
-				seen = false;
-		}
-		if (seen)
-			result.push_back(Line(Point(x[i-1], y[i-1]), Point(x[i], y[i])));
-	}
-	//last point
-	bool seen = true;
-	if (IsOneL(Point(x[0], y[0]), Point(x[N-1], y[N-1]), Point(xo, yo)))
-		seen = false;
-	for (int j = 0; j < N; ++j)
-	{
-		bool seeni = true, seeni_1 = true;
-		if (N - 1 == j)
-			continue;
-		if (0 != IsCross(Point(xo, yo), Point(x[0],   y[0]),   Point(x[j], y[j]), Point(x[(j+1)%N], y[(j+1)%N])))
-			seeni = false;
-		if (0 != IsCross(Point(xo, yo), Point(x[N-1], y[N-1]), Point(x[j], y[j]), Point(x[(j+1)%N], y[(j+1)%N])))
-			seeni_1 = false;
-		if (!seeni && !seeni_1)
-			seen = false;
-	}
-	if (seen)
-	{
-		if (result.back().b == Point(x[N-1], y[N-1]))
-		{
-			Line l = result.back();
-			result.pop_back();
-			result.push_back(Line(Point(x[0], y[0]), Point(x[N-1], y[N-1])));
-			result.push_back(l);
+			if (!IsOneL(Point(x[i-1], y[i-1]), Point(x[i], y[i]), Point(xo, yo)) && Check(Line(Point(x[i-1], y[i-1]), Point(x[i], y[i]))))
+				result.push_back(Line(Point(x[i-1], y[i-1]), Point(x[i], y[i])));
 		}
 		else
-			result.push_back(Line(Point(x[0], y[0]), Point(x[N-1], y[N-1])));
-		
+		{
+			if (!IsOneL(Point(x[0], y[0]), Point(x[N-1], y[N-1]), Point(xo, yo)) && Check(Line(Point(x[0], y[0]), Point(x[N-1], y[N-1]))))
+				result.push_back(Line(Point(x[0], y[0]), Point(x[N-1], y[N-1])));
+			if (!IsOneL(Point(x[N-2], y[N-2]), Point(x[N-1], y[N-1]), Point(xo, yo)) && Check(Line(Point(x[N-2], y[N-2]), Point(x[N-1], y[N-1]))))
+				result.push_back(Line(Point(x[N-2], y[N-2]), Point(x[N-1], y[N-1])));
+		}
 	}
 
 	if (NOFENCE)
