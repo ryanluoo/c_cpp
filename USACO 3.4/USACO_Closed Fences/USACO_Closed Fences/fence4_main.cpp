@@ -98,9 +98,6 @@ int IsCross(Line l1, Line l2)
 	//i,j都是从 l1.a 和 l2.a 为起点来计算
 	double i = in / id, j = jn / jd;
 
-	//Cross Point
-    crossi = i; crossj = j;
-
 	if (i < 1 && i > 0 && j < 1 && j > 0) // 严格相交于线段中间某点
 		return 1;
 	else if ((i == 1 || i == 0) && (j < 1 && j > 0)) // 相交于线段AB顶点，但不是CD的顶点
@@ -127,25 +124,17 @@ bool IsParallel(Line l1, Line l2)
 
 bool Check (Line fence)
 {
-	Line fcheck = fence.Sort();
+	fence = fence.Sort();
+	Line oa(o, fence.a);
+	Line ob(o, fence.b);
+	bool oasee = true;
+	bool obsee = true;
 	for (int i = 0; i != N; ++i)
 	{
-		if (f[i] == fence || IsOneL(f[i].a, f[i].b, o))
+		if (fence == f[i])
 			continue;
-		Line lcheck = f[i].Sort();
-		double lr = 0, rr = 0;
-		int checkR = IsCross(Line(o, lcheck.a), fcheck);
-		if (checkR > 1 && crossj > 0)
-			lr = crossj;
-		if (lr >= 1)
-			continue;
-		checkR = IsCross(Line(o, lcheck.b), fcheck);
-		if (checkR > 1 && crossj > 0)
-			rr = crossj >= 1 ? 1 : crossj;
-		if(rr - lr >= 1)
-			return false;
-		fcheck.a = Point(fcheck.a.x + fcheck.a.x * lr, fcheck.a.y + fcheck.a.y * lr);
-		fcheck.b = Point(fcheck.b.x + fcheck.b.x * rr, fcheck.b.y + fcheck.b.y * rr);
+		if (IsCross(oa, f[i]) == 1) oasee = false;
+		if (IsCross(ob, f[i]) == 1) obsee = false;
 	}
 	return true;
 }
