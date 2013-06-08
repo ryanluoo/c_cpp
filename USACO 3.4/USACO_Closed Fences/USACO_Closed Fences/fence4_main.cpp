@@ -7,10 +7,12 @@ LANG: C++
 #include <fstream>
 #include <cstring>
 #include <climits>
+#include <cmath>
 #include <list>
 using namespace std;
 
 #define MAXN 200
+#define MINDIFF 1e-6
 int N;
 int xo, yo;
 int x[MAXN];
@@ -42,7 +44,7 @@ struct Point
 	}
 	friend bool operator==(const Point& a, const Point& b)
 	{
-		return (a.x == b.x && a.y == b.y);
+		return (fabs(a.x - b.x) < MINDIFF && fabs(a.y - b.y) < MINDIFF);
 	}
 };
 struct Line
@@ -77,7 +79,14 @@ struct Line
 	}
 	friend bool operator==(const Line& l1, const Line& l2)
 	{
-		return (l1.a == l2.a && l1.b == l2.b) || (l1.a == l2.b && l1.b == l2.a);
+		bool b1 = (l1.a == l2.a && l1.b == l2.b);
+		bool b2 = (l1.a == l2.b && l1.b == l2.a);
+		bool b = b1 || b2;
+		return b;
+	}
+	friend bool operator!=(const Line& l1, const Line& l2)
+	{
+		return !(l1 == l2);
 	}
 };
 
@@ -122,21 +131,46 @@ bool IsParallel(Line l1, Line l2)
     return (l1.a.x - l1.b.x) * (l2.a.y - l2.b.y) == (l1.a.y - l1.b.y) * (l2.a.x - l2.b.x);
 }
 
-bool Check (Line fence)
+Point Mid (Point a, Point b)
 {
-	fence = fence.Sort();
+	return Point((a.x + b.x) / 2, (a.y + b.y) / 2);
+}
+
+bool Check (Line fence, int num)
+{
+	//if (pow(fence.a.x - fence.b.x, 2) + pow(fence.a.y - fence.b.y, 2) < MINDIFF)
+	if (fence.a == fence.b)
+		return false;
+
 	Line oa(o, fence.a);
 	Line ob(o, fence.b);
-	bool oasee = true;
-	bool obsee = true;
+	bool seena = true, seenb = true;
+
 	for (int i = 0; i != N; ++i)
 	{
-		if (fence == f[i])
+		bool oasee = true;	bool obsee = true;
+		if (i == num)
 			continue;
-		if (IsCross(oa, f[i]) == 1) oasee = false;
-		if (IsCross(ob, f[i]) == 1) obsee = false;
+		if (IsCross(oa, f[i]) > 0) 
+			oasee = false;
+		if (IsCross(ob, f[i]) > 0)
+			obsee = false;
+		if (!oasee && !obsee)
+			return false;
+		seena &= oasee;
+		seenb &= obsee;
 	}
-	return true;
+	if (seena || seenb)
+		return true;
+
+	Point mid = Mid(fence.a, fence.b);
+	Line newl = Line(fence.a, mid);
+	if (Check(newl, num)) 
+		return true;
+	newl = Line(mid, fence.b);
+	if (Check(newl, num))
+		return true;
+	return false;
 }
 
 int main()
@@ -165,7 +199,7 @@ int main()
 	{
 		for (int j = i + 2; j < N; ++j)
 		{
-			if ((j+1) % N != i && 0 < IsCross(Line(Point(x[i], y[i]), Point(x[i+1], y[i+1])), Line(Point(x[j], y[j]), Point(x[j+1], y[j+1]))))
+			if ((j+1) % N != i && 0 < IsCross(Line(Point(x[i], y[i]), Point(x[(i+1)%N], y[(i+1)%N])), Line(Point(x[j], y[j]), Point(x[(j+1)%N], y[(j+1)%N]))))
 				NOFENCE = true;
 		}
 	}
@@ -178,10 +212,12 @@ int main()
 		return 0;
 	}
 
+
+
 	list<Line> result;
 	for (int i = 0; i != N; ++i)
 	{
-		if (!IsOneL(f[i].a, f[i].b, o) && Check(f[i]))
+		if (!IsOneL(f[i].a, f[i].b, o) && Check(f[i], i))
 			result.push_back(f[i]);
 	}
 	fout << result.size() << endl;
