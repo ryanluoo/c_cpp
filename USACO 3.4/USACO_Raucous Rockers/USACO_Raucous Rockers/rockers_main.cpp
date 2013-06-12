@@ -11,7 +11,6 @@ using namespace std;
 
 int N, T, M;
 char songs[20];
-char s[20];
 
 int Check (int n)
 {
@@ -31,7 +30,7 @@ int Check (int n)
 			}
 			else
 			{
-				--m;				
+				--m;	
 				--i;
 				remt = T;
 			}
