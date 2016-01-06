@@ -381,7 +381,7 @@ int main()
 	PrintSolutions(fout);
 
 	FreeSolutions();
-    fclose(fin);
+    	fclose(fin);
 	fclose(fout);
 	return 0;
 }
